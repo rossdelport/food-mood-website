@@ -159,6 +159,31 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (window.Babel && typeof window.Babel.transformScriptTags === 'function') {
       window.Babel.transformScriptTags();
     }
+
+    // Persistent footer with Privacy / Terms links. The app owns <body>, so the
+    // footer is attached to <html> and re-ensured briefly in case the app's
+    // initial render replaces body content.
+    (function addLegalFooter() {
+      function ensure() {
+        if (document.getElementById('__legal_footer')) return;
+        var f = document.createElement('div');
+        f.id = '__legal_footer';
+        f.style.cssText = 'position:fixed;left:0;right:0;bottom:0;display:flex;gap:16px;' +
+          'justify-content:center;align-items:center;padding:9px 16px;' +
+          'font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+          'color:#8a8576;background:rgba(250,246,236,0.88);' +
+          '-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);' +
+          'border-top:1px solid rgba(231,224,207,0.9);z-index:9998';
+        f.innerHTML =
+          '<a href="/privacy.html" style="color:#8a8576;text-decoration:none">Privacy Policy</a>' +
+          '<span style="opacity:0.5">·</span>' +
+          '<a href="/terms.html" style="color:#8a8576;text-decoration:none">Terms of Use</a>';
+        document.documentElement.appendChild(f);
+      }
+      ensure();
+      var tries = 0;
+      var iv = setInterval(function() { ensure(); if (++tries > 20) clearInterval(iv); }, 250);
+    })();
   } catch (err) {
     setStatus('Error unpacking: ' + err.message);
     console.error('Bundle unpack error:', err);
