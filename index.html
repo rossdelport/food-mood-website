@@ -143,7 +143,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // createElement so they execute, awaiting onload for src scripts to
     // preserve ordering (React before ReactDOM before Babel before text/babel).
     const doc = new DOMParser().parseFromString(template, 'text/html');
+    // The template carries its own <head> with no favicon, so the swap below
+    // would drop ours. Preserve the icon link and re-attach it afterward.
+    const favicon = document.querySelector('link[rel="icon"]');
     document.documentElement.replaceWith(doc.documentElement);
+    if (favicon && !document.querySelector('link[rel="icon"]')) document.head.appendChild(favicon);
     const dead = Array.from(document.scripts);
     for (const old of dead) {
       const s = document.createElement('script');
